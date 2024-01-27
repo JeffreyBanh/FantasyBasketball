@@ -58,44 +58,82 @@ def getData():
                         data.append(sub_data)
     return data, list_header
 
+# def createDataFrame(data, list_header):
+#     dataFrame = pd.DataFrame(data = data, columns = list_header)
+#     df = dataFrame.where(dataFrame['Name'].str.len() > 3).dropna()
+#     df[['Value', 'pts', '3', 'reb', 'ast', 'stl', 'blk', 'fg%', 'ft%', 'to', 'fga', 'fta']] = df[['Value', 'pts', '3', 'reb', 'ast', 'stl', 'blk', 'fg%', 'ft%', 'to' ,'fga', 'fta']].apply(pd.to_numeric)
+#     df['FG'] = round(df['fga'] * df['fg%']).astype(int).astype(str) + "/" + df['fga'].astype(str)
+#     df['FT'] = round(df['fta'] * df['ft%']).astype(int).astype(str) + "/" + df['fta'].astype(str)
+#     df['Fantasy Points'] = round(df['pts'] + (df['reb'] * 1.2) + (df['ast'] * 1.5) + (df['blk'] * 3) + (df['stl'] * 3) - (df['to']) , 1) 
+#     df = renameColumns(df)
+#     return df
+
 def createDataFrame(data, list_header):
     dataFrame = pd.DataFrame(data = data, columns = list_header)
     df = dataFrame.where(dataFrame['Name'].str.len() > 3).dropna()
-    df[['Value', 'pts', '3', 'reb', 'ast', 'stl', 'blk', 'fg%', 'ft%', 'to', 'fga', 'fta']] = df[['Value', 'pts', '3', 'reb', 'ast', 'stl', 'blk', 'fg%', 'ft%', 'to' ,'fga', 'fta']].apply(pd.to_numeric)
+    df[['Value', 'pts', '3', 'reb', 'ast', 'stl', 'blk', 'fg%', 'ft%', 'to', 'fga', 'fta', 'pV', '3V', 'rV', 'aV', 'sV', 'bV', 'fg%V', 'ft%V', 'toV']] = df[['Value', 'pts', '3', 'reb', 'ast', 'stl', 'blk', 'fg%', 'ft%', 'to', 'fga', 'fta', 'pV', '3V', 'rV', 'aV', 'sV', 'bV', 'fg%V', 'ft%V', 'toV']].apply(pd.to_numeric)
     df['FG'] = round(df['fga'] * df['fg%']).astype(int).astype(str) + "/" + df['fga'].astype(str)
     df['FT'] = round(df['fta'] * df['ft%']).astype(int).astype(str) + "/" + df['fta'].astype(str)
-    df['Fantasy Points'] = df['pts'] + (df['reb'] * 1.2) + (df['ast'] * 1.5) + (df['blk'] * 3) + (df['stl'] * 3) - (df['to']) 
+    df['Fantasy Points'] = round(df['pts'] + (df['reb'] * 1.2) + (df['ast'] * 1.5) + (df['blk'] * 3) + (df['stl'] * 3) - (df['to']) , 1) 
+    df['STL Points'] = [df['sV'].values[x] if df['stl'].values[x] == 0 else df['stl'].values[x] * 3 * df['sV'].values[x] for x in range(len(df['stl']))]
+    df['blk Points'] = [df['bV'].values[x] if df['blk'].values[x] == 0 else df['blk'].values[x] * 3 * df['bV'].values[x] for x in range(len(df['blk']))]
+    df['to Points'] = [df['toV'].values[x] * 4 if df['to'].values[x] == 0 else df['to'].values[x] * df['toV'].values[x] for x in range(len(df['to']))]
+    df['Score'] = round((round(df['fga'] * df['fg%']).astype(int)) * df['fg%V']
+    + (round(df['fta'] * df['ft%']).astype(int) * df['ft%V']) 
+    + (df['pts'] * df['pV']) 
+    + (df['3'] * 1.75 * df['3V']) 
+    + (df['reb'] * 1.2 * df['rV'])
+    + (df['ast'] * 1.5 * df['aV']) 
+    + (df['blk Points']) 
+    + (df['STL Points']) 
+    + (df['to Points']),1)
     df.sort_values(by = 'Value', ascending=True, inplace=True)
     df = renameColumns(df)
     return df
 
 def renameColumns(dataFrame):
-    return dataFrame.rename(columns = {"min": "Min", "3" : "3M", "pts" : "PTS", "reb" : "REB", "ast" : "AST", "stl" : "STL", "blk" : "BLK", "to" : "TO"})
-    
+    return dataFrame.rename(columns = {"min": "Min", "3" : "3PM", "pts" : "PTS", "reb" : "REB", "ast" : "AST", "stl" : "STL", "blk" : "BLK", "to" : "TO",})
 
 def getBestPlayers(dataFrame):
-    dataFrame.sort_values(by = 'Value', ascending = False, inplace = True)
-    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3M', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value']].dropna().head(10)
-    dataFrame['rank'] = dataFrame['Value'].rank(ascending = False, method = 'first').astype(int)
+    dataFrame.sort_values(by = 'Score', ascending = False, inplace = True)
+    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value', 'Score']].dropna().head(10)
+    dataFrame['rank'] = dataFrame['Score'].rank(ascending = False, method = 'first').astype(int)
     firstColumn = dataFrame.pop('rank')
     dataFrame.insert(0, 'Rank', firstColumn)
+    dataFrame = dataFrame.astype(str)
     return dataFrame
 
 def getWorstPlayers(dataFrame):
-    dataFrame.sort_values(by = 'Value', ascending=True, inplace=True)
-    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3M', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value']].where(df['Min'].str.split(':').str[0].astype(int) >= 25).dropna().head(10)
-    dataFrame[['3M', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']] = dataFrame[['3M', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']].astype(int)
+    dataFrame.sort_values(by = ['Score'], ascending=True, inplace=True)
+    dataFrame = dataFrame[dataFrame['Min'] != '']
+    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value', 'Score']].where(dataFrame['Min'].str.split(':').str[0].astype(int) >= 25).dropna().head(10)
+    dataFrame[['3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']] = dataFrame[['3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']].astype(int)
+    dataFrame['rank'] = dataFrame['Score'].rank(ascending = True, method = 'first').astype(int)
+    firstColumn = dataFrame.pop('rank')
+    dataFrame.insert(0, 'Rank', firstColumn)
+    dataFrame['Value'] = round(dataFrame['Value'], 2)
+    dataFrame = dataFrame.astype(str)
+    return dataFrame
+
+
+def getWorstPlayersValue(dataFrame):
+    dataFrame.sort_values(by = ['Value'], ascending=True, inplace=True)
+    dataFrame = dataFrame[dataFrame['Min'] != '']
+    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value', 'Score']].where(dataFrame['Min'].str.split(':').str[0].astype(int) >= 25).dropna().head(10)
+    dataFrame[['3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']] = dataFrame[['3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']].astype(int)
     dataFrame['rank'] = dataFrame['Value'].rank(ascending = True, method = 'first').astype(int)
     firstColumn = dataFrame.pop('rank')
     dataFrame.insert(0, 'Rank', firstColumn)
+    dataFrame = dataFrame.astype(str)
     return dataFrame
 
 def printDataFrame(dataFrame):
     display(dataFrame.to_string())
 
-data, list_header = getData()
-df = createDataFrame(data, list_header)
-worstPlayersDF = getWorstPlayers(df)
-printDataFrame(worstPlayersDF)
-bestPlayersDF = getBestPlayers(df)
-printDataFrame(bestPlayersDF)
+
+# data, list_header = getData()
+# df = createDataFrame(data, list_header)
+# worstPlayersDF = getWorstPlayers(df)
+# printDataFrame(worstPlayersDF)
+# bestPlayersDF = getBestPlayers(df)
+# printDataFrame(bestPlayersDF)
