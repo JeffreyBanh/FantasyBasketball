@@ -55,7 +55,8 @@ def getData():
                         except:
                             continue
                     if "Totals" not in sub_data and sub_data != [] and "Team" not in sub_data and "Rank" not in sub_data:
-                        data.append(sub_data)
+                        if sub_data[9] != '':
+                            data.append(sub_data)
     return data, list_header
 
 # def createDataFrame(data, list_header):
@@ -106,7 +107,7 @@ def getBestPlayers(dataFrame):
 def getWorstPlayers(dataFrame):
     dataFrame.sort_values(by = ['Score'], ascending=True, inplace=True)
     dataFrame = dataFrame[dataFrame['Min'] != '']
-    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value', 'Score']].where(dataFrame['Min'].str.split(':').str[0].astype(int) >= 25).dropna().head(10)
+    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value', 'Score']].where(dataFrame['Min'].str.split(':').str[0].astype(int) >= 24).dropna().head(10)
     dataFrame[['3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']] = dataFrame[['3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']].astype(int)
     dataFrame['rank'] = dataFrame['Score'].rank(ascending = True, method = 'first').astype(int)
     firstColumn = dataFrame.pop('rank')
@@ -117,13 +118,13 @@ def getWorstPlayers(dataFrame):
 
 
 def getWorstPlayersValue(dataFrame):
-    dataFrame.sort_values(by = ['Value'], ascending=True, inplace=True)
     dataFrame = dataFrame[dataFrame['Min'] != '']
-    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value', 'Score']].where(dataFrame['Min'].str.split(':').str[0].astype(int) >= 25).dropna().head(10)
+    dataFrame = dataFrame[['Name', 'Min', 'FG', 'FT', '3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO', 'Fantasy Points', 'Value']].where(dataFrame['Min'].str.split(':').str[0].astype(int) >= 24).dropna().head(10)
     dataFrame[['3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']] = dataFrame[['3PM', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TO']].astype(int)
     dataFrame['rank'] = dataFrame['Value'].rank(ascending = True, method = 'first').astype(int)
     firstColumn = dataFrame.pop('rank')
     dataFrame.insert(0, 'Rank', firstColumn)
+    dataFrame.sort_values(by = ['Value'], ascending=True, inplace=True)
     dataFrame = dataFrame.astype(str)
     return dataFrame
 

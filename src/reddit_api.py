@@ -36,8 +36,8 @@ def textWorseOutput(values, columns):
     for value in values:
         pipeStats = "|" + "|".join(value) + "|" + "\n"
         output += pipeStats
-    output += "\n&#x200B;"
-    output += "Players qualified if they played 25 mins or more.\n\n" + "Credits to Basketball Monster for the data!"
+    output += "\n&#x200B;\n"
+    output += "Players qualified if they played 24 mins or more.\n\n" + "Credits to Basketball Monster for the data!"
     return output
 
 def textBestOutput(values, columns):
@@ -69,10 +69,8 @@ def submitReddit(reddit, subreddit, title, text):
 def main():
     reddit = getRedditAPI()
     data, list_header = getData()
-    print(data)
-    print(list_header)
     df = createDataFrame(data, list_header)
-    worstPlayersDF = getWorstPlayers(df)
+    worstPlayersDF = getWorstPlayersValue(df)
     bestPlayersDF = getBestPlayers(df)
     worstValues = worstPlayersDF.values.tolist()
     worstColumns = worstPlayersDF.columns.tolist()
@@ -87,6 +85,7 @@ def main():
     bestOutput = textBestOutput(bestValues, bestColumns)
     # submitReddit(reddit, 'testingTables', bestTitle, bestOutput)
     print(worstPlayersDF)
-    print(bestPlayersDF)
+    print(worstOutput)
+    print(worstTitle)
 
 main()
