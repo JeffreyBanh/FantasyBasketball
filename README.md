@@ -57,7 +57,7 @@ pip install -r requirements.txt
    - In your GitHub repository, go to **Settings → Secrets → Actions → New repository secret** and add:
      - `REDDIT_CLIENT_ID`
      - `REDDIT_CLIENT_SECRET`
-     - `REDDIT_USER_AGENT`
+     - `PASSWORD`
 
 ---
 
