@@ -4,30 +4,6 @@ import json
 import pandas as pd
 from IPython.display import display
 
-# res = requests.get("https://www.nba.com/games")
-
-# res_str = str(res.text)
-
-# bs_str = BeautifulSoup(res_str, "html.parser")
-
-# scripts = bs_str.find_all("script")[-2]
-# info = json.loads(scripts.text)
-
-# gamecards = info['props']['pageProps']['gameCardFeed']
-
-# cards = gamecards['modules'][0]['cards']
-# for card in cards:
-#     card_data = card['cardData']
-#     gametime_utc = card_data['gameTimeUtc']
-#     home_team = card_data['homeTeam']['teamTricode']
-#     away_team = card_data['awayTeam']['teamTricode']
-#     game_id = card_data['gameId']
-#     print("{}: {} - {} @ {}".format(game_id, home_team, away_team, gametime_utc))
-#     player_stats = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=game_id).player_stats.get_json()
-#     print(player_stats)
-#     denver = "0022300614"
-#     print(boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=denver).player_stats.get_json())
-
 def getData():
     res2 = requests.get("https://basketballmonster.com/boxscores.aspx")
     res2_text = res2.text
@@ -58,16 +34,6 @@ def getData():
                         if sub_data[9] != '':
                             data.append(sub_data)
     return data, list_header
-
-# def createDataFrame(data, list_header):
-#     dataFrame = pd.DataFrame(data = data, columns = list_header)
-#     df = dataFrame.where(dataFrame['Name'].str.len() > 3).dropna()
-#     df[['Value', 'pts', '3', 'reb', 'ast', 'stl', 'blk', 'fg%', 'ft%', 'to', 'fga', 'fta']] = df[['Value', 'pts', '3', 'reb', 'ast', 'stl', 'blk', 'fg%', 'ft%', 'to' ,'fga', 'fta']].apply(pd.to_numeric)
-#     df['FG'] = round(df['fga'] * df['fg%']).astype(int).astype(str) + "/" + df['fga'].astype(str)
-#     df['FT'] = round(df['fta'] * df['ft%']).astype(int).astype(str) + "/" + df['fta'].astype(str)
-#     df['Fantasy Points'] = round(df['pts'] + (df['reb'] * 1.2) + (df['ast'] * 1.5) + (df['blk'] * 3) + (df['stl'] * 3) - (df['to']) , 1) 
-#     df = renameColumns(df)
-#     return df
 
 def createDataFrame(data, list_header):
     dataFrame = pd.DataFrame(data = data, columns = list_header)
@@ -126,15 +92,9 @@ def getWorstPlayersValue(dataFrame):
     dataFrame.insert(0, 'Rank', firstColumn)
     dataFrame.sort_values(by = ['Value'], ascending=True, inplace=True)
     dataFrame = dataFrame.astype(str)
+    print(dataFrame['Name'])
+    dataFrame['Name'] = dataFrame['Name'].str.replace("fouls", "").str.rstrip()
     return dataFrame
 
 def printDataFrame(dataFrame):
     display(dataFrame.to_string())
-
-
-# data, list_header = getData()
-# df = createDataFrame(data, list_header)
-# worstPlayersDF = getWorstPlayers(df)
-# printDataFrame(worstPlayersDF)
-# bestPlayersDF = getBestPlayers(df)
-# printDataFrame(bestPlayersDF)

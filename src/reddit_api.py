@@ -3,27 +3,17 @@ import requests
 import datetime
 import praw
 import argparse
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # This loads the variables from .env into os.environ
 
 def getRedditAPI():
-    # CLIENT_ID = 'eDX7DeW85uiRe6UJNCvl-A'
-    # SECRET_KEY = 'tnlVQwNyWEMpQmQuWr8_OS4NV1uUZQ'
-    # auth = requests.auth.HTTPBasicAuth(CLIENT_ID, SECRET_KEY)
-    # accInfo = {
-    #     'grant_type' : 'password',
-    #     'username': 'clowob',
-    #     'password': 'Zsaber123!' 
-    # }
-    
-    # headers = {'User-Agent' : 'RedditAPI/0.0.1'}
-    # res = requests.post('https://www.reddit.com/api/v1/access_token', auth = auth, data = accInfo, headers = headers)
-
-    # TOKEN = res.json()['access_token']
-    # headers['Authorization'] = f'bearer {TOKEN}'
 
     reddit = praw.Reddit(
-        client_id="I2p_CGlYpfzkRVIgB7Grrg",
-        client_secret="_kB2X6TYbMEtOrM3X-PJeGw_OJdH0g",
-        password="asdlkjf192849asd",
+        client_id=os.environ["REDDIT_CLIENT_ID"],
+        client_secret=os.environ["REDDIT_CLIENT_SECRET"],
+        password=os.environ["PASSWORD"],
         user_agent="fantasy_sports_stats",
         username="kdeezburner",
     )
@@ -131,4 +121,6 @@ def main():
 
 
 if __name__ == "__main__":
+    # python3 reddit_api.py -dr 0 -ot worst to post
+    # python3 reddit_api.py -dr 1 -ot worst to print
     main()
