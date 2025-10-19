@@ -3,3 +3,4 @@ requests
 pandas
 praw
 ipython
+python-dotenv
