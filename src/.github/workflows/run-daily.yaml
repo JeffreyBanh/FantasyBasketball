@@ -1,9 +1,9 @@
-name: Run Python Script Daily
+name: Run NBA Reddit Script Daily
 
 on:
   schedule:
-    - cron: "0 12 * * *"  # runs every day at 12:00 UTC
-  workflow_dispatch:       # allows manual trigger
+    - cron: "30 6 * * *"  # runs daily at 11:30 PM PT
+  workflow_dispatch:       # allows manual runs from GitHub UI
 
 jobs:
   run-script:
@@ -23,5 +23,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run the script
-        run: python myscript.py
+      - name: Run Reddit script
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          python reddit_api.py -dr 1 -ot worst
+
