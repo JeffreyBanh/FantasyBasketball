@@ -29,5 +29,5 @@ jobs:
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           PASSWORD: ${{ secrets.PASSWORD }}
         run: |
-          python src/reddit_api.py -dr 1 -ot worst
+          python src/reddit_api.py -dr 0 -ot worst
 
